@@ -20,7 +20,8 @@ namespace PeminjamanRuanganAPI.Seeders
                     Status = BookingStatuses.Pending,
                     CreatedAt = new DateTime(2026, 1, 1, 9, 0, 0),
                     UpdatedAt = null,
-                    IsDeleted = false
+                    IsDeleted = false,
+                    DeletedAt = null
                 },
                 new RoomBooking
                 {
@@ -33,7 +34,8 @@ namespace PeminjamanRuanganAPI.Seeders
                     Status = BookingStatuses.Pending,
                     CreatedAt = new DateTime(2026, 1, 1, 9, 0, 0),
                     UpdatedAt = null,
-                    IsDeleted = false
+                    IsDeleted = false,
+                    DeletedAt = null
                 }
             );
         }

@@ -1,12 +1,11 @@
-using PeminjamanRuanganAPI.Models;
 using PeminjamanRuanganAPI.Constants;
+using PeminjamanRuanganAPI.Common;
+using PeminjamanRuanganAPI.Models;
 
 namespace PeminjamanRuanganAPI.Models
 {
-    public class RoomBooking
+    public class RoomBooking : BaseEntity
     {
-        public int Id { get; set; }
-
         public int UserId { get; set; }
         public User User { get; set; } = null!;
 
@@ -26,8 +25,6 @@ namespace PeminjamanRuanganAPI.Models
             = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
-
-        public bool IsDeleted { get; set; } = false;
 
         public ICollection<BookingStatusHistory> StatusHistories
             { get; set; } = new List<BookingStatusHistory>();

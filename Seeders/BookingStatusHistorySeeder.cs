@@ -16,7 +16,9 @@ namespace PeminjamanRuanganAPI.Seeders
                     OldStatus = BookingStatuses.Pending,
                     NewStatus = BookingStatuses.Pending,
                     ChangedAt = new DateTime(2026, 1, 1, 9, 5, 0),
-                    ChangedByUserId = 2
+                    ChangedByUserId = 2,
+                    IsDeleted = false,
+                    DeletedAt = null
                 },
                 new BookingStatusHistory
                 {
@@ -25,7 +27,9 @@ namespace PeminjamanRuanganAPI.Seeders
                     OldStatus = BookingStatuses.Pending,
                     NewStatus = BookingStatuses.Pending,
                     ChangedAt = new DateTime(2026, 1, 1, 9, 5, 0),
-                    ChangedByUserId = 2
+                    ChangedByUserId = 2,
+                    IsDeleted = false,
+                    DeletedAt = null
                 }
             );
         }

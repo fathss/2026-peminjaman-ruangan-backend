@@ -1,12 +1,11 @@
-using PeminjamanRuanganAPI.Models;
 using PeminjamanRuanganAPI.Constants;
+using PeminjamanRuanganAPI.Common;
+using PeminjamanRuanganAPI.Models;
 
 namespace PeminjamanRuanganAPI.Models
 {
-    public class BookingStatusHistory
+    public class BookingStatusHistory : BaseEntity
     {
-        public int Id { get; set; }
-
         public int RoomBookingId { get; set; }
         public RoomBooking RoomBooking { get; set; } = null!;
 

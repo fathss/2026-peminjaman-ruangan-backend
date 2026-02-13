@@ -15,7 +15,9 @@ namespace PeminjamanRuanganAPI.Seeders
                     Location = "Gedung D3, LT. 2",
                     Capacity = 30,
                     Description = "Ruang kelas",
-                    IsActive = true
+                    IsActive = true,
+                    IsDeleted = false,
+                    DeletedAt = null
                 },
                 new Room
                 {
@@ -24,7 +26,9 @@ namespace PeminjamanRuanganAPI.Seeders
                     Location = "Gedung SAW, LT. 6",
                     Capacity = 30,
                     Description = "Ruang kelas",
-                    IsActive = true
+                    IsActive = true,
+                    IsDeleted = false,
+                    DeletedAt = null
                 },
                 new Room
                 {
@@ -33,7 +37,9 @@ namespace PeminjamanRuanganAPI.Seeders
                     Location = "Gedung SAW, LT. 7",
                     Capacity = 120,
                     Description = "Ruang kelas",
-                    IsActive = true
+                    IsActive = true,
+                    IsDeleted = false,
+                    DeletedAt = null
                 }
             );
         }

@@ -1,11 +1,10 @@
+using PeminjamanRuanganAPI.Common;
 using PeminjamanRuanganAPI.Models;
 
 namespace PeminjamanRuanganAPI.Models
 {
-    public class User
+    public class User : BaseEntity
     {
-        public int Id { get; set; }
-
         public string Username { get; set; } = null!;
 
         public string Email { get; set; } = null!;
