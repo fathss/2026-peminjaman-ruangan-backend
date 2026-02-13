@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using PeminjamanRuanganAPI.Models;
+using PeminjamanRuanganAPI.Seeders;
 
 namespace PeminjamanRuanganAPI.Data
 {
@@ -18,10 +19,12 @@ namespace PeminjamanRuanganAPI.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<RoomBooking>()
-                .HasQueryFilter(b => !b.IsDeleted);
-
             base.OnModelCreating(modelBuilder);
+
+            UserSeeders.Seed(modelBuilder);
+            RoomSeeder.Seed(modelBuilder);
+            RoomBookingSeeder.Seed(modelBuilder);
+            BookingStatusHistorySeeder.Seed(modelBuilder);
         }
     }
 }
