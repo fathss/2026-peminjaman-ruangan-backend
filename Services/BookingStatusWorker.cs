@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PeminjamanRuanganAPI.Constants;
 using PeminjamanRuanganAPI.Data;
+using PeminjamanRuanganAPI.Models;
 
 namespace PeminjamanRuanganAPI.Services
 {
@@ -19,31 +20,53 @@ namespace PeminjamanRuanganAPI.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker memeriksa pembaruan status booking pada: {time}", DateTimeOffset.Now);
-
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                     var now = DateTime.Now;
 
-                    // Update Approved -> OnGoing
+                    // Cek Approved -> OnGoing
                     var toOnGoing = await context.RoomBookings
                         .Where(b => b.Status == BookingStatuses.Approved && now >= b.StartTime && now < b.EndTime)
                         .ToListAsync();
 
-                    foreach (var b in toOnGoing) b.Status = BookingStatuses.OnGoing;
+                    foreach (var b in toOnGoing) 
+                    {
+                        b.Status = BookingStatuses.OnGoing;
+                        
+                        context.BookingStatusHistories.Add(new BookingStatusHistory 
+                        {
+                            RoomBookingId = b.Id,
+                            OldStatus = BookingStatuses.Approved,
+                            NewStatus = BookingStatuses.OnGoing,
+                            ChangedAt = now,
+                            ChangedByUserId = null // System update, tidak ada user yang mengubah
+                        });
+                    }
 
-                    // Update OnGoing -> Completed
+                    // Cek OnGoing -> Completed
                     var toCompleted = await context.RoomBookings
                         .Where(b => b.Status == BookingStatuses.OnGoing && now >= b.EndTime)
                         .ToListAsync();
 
-                    foreach (var b in toCompleted) b.Status = BookingStatuses.Completed;
+                    foreach (var b in toCompleted) 
+                    {
+                        b.Status = BookingStatuses.Completed;
+
+                        context.BookingStatusHistories.Add(new BookingStatusHistory 
+                        {
+                            RoomBookingId = b.Id,
+                            OldStatus = BookingStatuses.OnGoing,
+                            NewStatus = BookingStatuses.Completed,
+                            ChangedAt = now,
+                            ChangedByUserId = null // System update, tidak ada user yang mengubah
+                        });
+                    }
 
                     if (toOnGoing.Any() || toCompleted.Any())
                     {
                         await context.SaveChangesAsync();
-                        _logger.LogInformation("Status booking berhasil diperbarui secara otomatis.");
+                        _logger.LogInformation("Status & History berhasil diperbarui.");
                     }
                 }
 

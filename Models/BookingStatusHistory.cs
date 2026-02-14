@@ -16,6 +16,6 @@ namespace PeminjamanRuanganAPI.Models
         public DateTime ChangedAt { get; set; }
             = DateTime.Now;
 
-        public int ChangedByUserId { get; set; }
+        public int? ChangedByUserId { get; set; }
     }
 }
