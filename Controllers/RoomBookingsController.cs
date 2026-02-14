@@ -9,10 +9,12 @@ namespace PeminjamanRuanganAPI.Controllers
     public class RoomBookingsController : ControllerBase
     {
         private readonly IRoomBookingService _service;
+        private readonly IStatusHistoryService _historyService;
 
-        public RoomBookingsController(IRoomBookingService service)
+        public RoomBookingsController(IRoomBookingService service, IStatusHistoryService historyService)
         {
             _service = service;
+            _historyService = historyService;
         }
 
         // Get: api/roombookings
@@ -140,6 +142,21 @@ namespace PeminjamanRuanganAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+        // Get: api/roombookings/{id}/histories
+        [HttpGet("{id}/histories")]
+        public async Task<ActionResult<IEnumerable<StatusHistoryDto>>> GetHistoryById(int id)
+        {
+            var bookingExists = await _service.GetByIdAsync(id);
+            if (bookingExists == null)            
+            {
+                return NotFound();
+            }
+
+            var histories = await _historyService.GetByBookingIdAsync(id);
+
+            return Ok(histories ?? new List<StatusHistoryDto>());
         }
     }
 }

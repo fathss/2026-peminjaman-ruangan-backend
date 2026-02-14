@@ -61,11 +61,8 @@ namespace PeminjamanRuanganAPI.Services
             var roomBooking = await _context.RoomBookings.FindAsync(id);
             if (roomBooking == null) return false;
 
-            if (roomBooking.Status == BookingStatuses.OnGoing)
-                throw new Exception(ErrorMessages.CannotEditOngoing);
-            
-            if (roomBooking.Status == BookingStatuses.Completed)
-                throw new Exception(ErrorMessages.CannotEditCompleted);
+            if (roomBooking.Status != BookingStatuses.Pending)
+                throw new Exception(ErrorMessages.CannotEditNonPending);
 
             await ValidateBookingAsync(roomBooking.RoomId, dto.StartTime, dto.EndTime, id); 
 
@@ -109,16 +106,16 @@ namespace PeminjamanRuanganAPI.Services
             var roomBooking = await _context.RoomBookings.FindAsync(id);
             if (roomBooking == null) return false;
 
-            var computedStatus = GetComputedStatus(roomBooking);
-
-            if (computedStatus == BookingStatuses.Cancelled)
-                throw new Exception(ErrorMessages.CannotApproveCancelled);
-
-            if (computedStatus == BookingStatuses.Completed)
-                throw new Exception(ErrorMessages.CannotApproveCompleted);
-
-            if (computedStatus == BookingStatuses.Approved || computedStatus == BookingStatuses.OnGoing)
-                throw new Exception(ErrorMessages.AlreadyApproved);
+            switch (roomBooking.Status)
+            {
+                case BookingStatuses.Approved:
+                case BookingStatuses.OnGoing:
+                    throw new Exception(ErrorMessages.AlreadyApproved);
+                case BookingStatuses.Cancelled:
+                    throw new Exception(ErrorMessages.CannotApproveCancelled);
+                case BookingStatuses.Completed:
+                    throw new Exception(ErrorMessages.CannotApproveCompleted);
+            }
 
             await ChangeStatusAsync(roomBooking, BookingStatuses.Approved, changedByUserId);
             return true;
@@ -129,19 +126,17 @@ namespace PeminjamanRuanganAPI.Services
             var roomBooking = await _context.RoomBookings.FindAsync(id);
             if (roomBooking == null) return false;
 
-            var computedStatus = GetComputedStatus(roomBooking);
-
-            if (computedStatus == BookingStatuses.Cancelled)
-                throw new Exception(ErrorMessages.CannotRejectCancelled);
-
-            if (computedStatus == BookingStatuses.Completed)
-                throw new Exception(ErrorMessages.CannotRejectCompleted);
-            
-            if (computedStatus == BookingStatuses.OnGoing)
-                throw new Exception(ErrorMessages.CannotRejectOngoing);
-
-            if (computedStatus == BookingStatuses.Rejected)
-                throw new Exception(ErrorMessages.AlreadyRejected);
+            switch (roomBooking.Status)
+            {
+                case BookingStatuses.Rejected:
+                    throw new Exception(ErrorMessages.AlreadyRejected);
+                case BookingStatuses.Cancelled:
+                    throw new Exception(ErrorMessages.CannotRejectCancelled);
+                case BookingStatuses.Completed:
+                    throw new Exception(ErrorMessages.CannotRejectCompleted);
+                case BookingStatuses.OnGoing:
+                    throw new Exception(ErrorMessages.CannotRejectOngoing);
+            }
 
             await ChangeStatusAsync(roomBooking, BookingStatuses.Rejected, changedByUserId);
             return true;
@@ -152,35 +147,20 @@ namespace PeminjamanRuanganAPI.Services
             var roomBooking = await _context.RoomBookings.FindAsync(id);
             if (roomBooking == null) return false;
 
-            var computedStatus = GetComputedStatus(roomBooking);
-
-            if (computedStatus == BookingStatuses.Cancelled)
-                throw new Exception(ErrorMessages.AlreadyCancelled);
-
-            if (computedStatus == BookingStatuses.Completed)
-                throw new Exception(ErrorMessages.CannotCancelCompleted);
-
-            if (computedStatus == BookingStatuses.OnGoing)
-                throw new Exception(ErrorMessages.CannotCancelOngoing);
+            switch (roomBooking.Status)
+            {
+                case BookingStatuses.Cancelled:
+                    throw new Exception(ErrorMessages.AlreadyCancelled);
+                case BookingStatuses.Rejected:
+                    throw new Exception(ErrorMessages.CannotCancelRejected);
+                case BookingStatuses.Completed:
+                    throw new Exception(ErrorMessages.CannotCancelCompleted);
+                case BookingStatuses.OnGoing:
+                    throw new Exception(ErrorMessages.CannotCancelOngoing);
+            }
 
             await ChangeStatusAsync(roomBooking, BookingStatuses.Cancelled, changedByUserId);
             return true;
-        }
-
-        private string GetComputedStatus(RoomBooking booking)
-        {
-            if (booking.Status == BookingStatuses.Approved)
-            {
-                var now = DateTime.Now;
-
-                if (now >= booking.StartTime && now < booking.EndTime)
-                    return BookingStatuses.OnGoing;
-
-                if (now >= booking.EndTime)
-                    return BookingStatuses.Completed;
-            }
-
-            return booking.Status;
         }
 
         private async Task ValidateBookingAsync(int roomId, DateTime start, DateTime end, int? excludeId = null)

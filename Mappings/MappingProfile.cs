@@ -24,6 +24,9 @@ namespace PeminjamanRuanganAPI.Mappings
             CreateMap<CreateRoomBookingDto, RoomBooking>();
 
             CreateMap<UpdateRoomBookingDto, RoomBooking>();
+
+            // ------- BookingStatusHistory Mappings -------
+            CreateMap<BookingStatusHistory, StatusHistoryDto>();
         }
     }
 }
