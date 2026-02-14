@@ -79,6 +79,9 @@ namespace PeminjamanRuanganAPI.Services
             var roomBooking = await _context.RoomBookings.FindAsync(id);
             if (roomBooking == null) return false;
 
+            if (roomBooking.Status == BookingStatuses.OnGoing)
+                throw new Exception(ErrorMessages.CannotDeleteOngoing);
+
             _context.RoomBookings.Remove(roomBooking);
             await _context.SaveChangesAsync();
             return true;
@@ -188,6 +191,8 @@ namespace PeminjamanRuanganAPI.Services
 
             if (!room.IsActive) throw new Exception(ErrorMessages.RoomInactive);
 
+            if (start < DateTime.Now) throw new Exception(ErrorMessages.StartTimeInPast);
+
             if (start >= end) throw new Exception(ErrorMessages.InvalidTimeRange);
 
             var isOverlapping = await _context.RoomBookings
@@ -195,6 +200,7 @@ namespace PeminjamanRuanganAPI.Services
                             b.Id != excludeId && 
                             b.Status != BookingStatuses.Cancelled && 
                             b.Status != BookingStatuses.Rejected &&
+                            b.Status != BookingStatuses.Completed &&
                             start < b.EndTime && 
                             end > b.StartTime);
 
