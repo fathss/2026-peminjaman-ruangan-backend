@@ -10,11 +10,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddControllers();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
-builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IRoomBookingService, RoomBookingService>();
+builder.Services.AddHostedService<BookingStatusWorker>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

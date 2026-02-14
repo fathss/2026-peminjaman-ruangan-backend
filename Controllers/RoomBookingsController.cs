@@ -74,5 +74,65 @@ namespace PeminjamanRuanganAPI.Controllers
 
             return NoContent();
         }   
+
+        // Put: api/roombookings/{id}/approve
+        [HttpPut("{id}/approve")]
+        public async Task<IActionResult> Approve(int id)
+        {
+            try
+            {
+                var adminId = 1; // TODO: Ambil UserId dari Auth
+
+                var success = await _service.ApproveAsync(id, adminId);
+
+                if (!success) return NotFound();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Put: api/roombookings/{id}/reject
+        [HttpPut("{id}/reject")]
+        public async Task<IActionResult> Reject(int id)
+        {
+            try
+            {
+                var adminId = 1; // TODO: Ambil UserId dari Auth
+
+                var success = await _service.RejectAsync(id, adminId);
+
+                if (!success) return NotFound();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Put: api/roombookings/{id}/cancel
+        [HttpPut("{id}/cancel")]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            try
+            {
+                var userId = 2; // TODO: Ambil UserId dari Auth
+
+                var success = await _service.CancelAsync(id, userId);
+
+                if (!success) return NotFound();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

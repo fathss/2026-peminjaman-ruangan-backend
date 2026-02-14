@@ -48,7 +48,7 @@ namespace PeminjamanRuanganAPI.Data
                 {
                     entry.State = EntityState.Modified;
                     entry.Entity.IsDeleted = true;
-                    entry.Entity.DeletedAt = DateTime.UtcNow;
+                    entry.Entity.DeletedAt = DateTime.Now;
 
                     if (entry.Entity is Room room)
                     {
