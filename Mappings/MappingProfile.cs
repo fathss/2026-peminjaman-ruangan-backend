@@ -14,6 +14,17 @@ namespace PeminjamanRuanganAPI.Mappings
             CreateMap<CreateRoomDto, Room>();
 
             CreateMap<UpdateRoomDto, Room>();
+
+            // ------- RoomBooking Mappings -------
+            CreateMap<RoomBooking, RoomBookingResponseDto>()
+                .ForMember(dest => dest.RoomName,
+                    opt => opt.MapFrom(src => src.Room.Name))
+                .ForMember(dest => dest.UserName,
+                    opt => opt.MapFrom(src => src.User.Username));
+
+            CreateMap<CreateRoomBookingDto, RoomBooking>();
+
+            CreateMap<UpdateRoomBookingDto, RoomBooking>();
         }
     }
 }

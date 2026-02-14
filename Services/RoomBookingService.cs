@@ -1,0 +1,102 @@
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using PeminjamanRuanganAPI.Constants;
+using PeminjamanRuanganAPI.Data;
+using PeminjamanRuanganAPI.DTO;
+using PeminjamanRuanganAPI.Models;
+using PeminjamanRuanganAPI.Mappings;
+
+namespace PeminjamanRuanganAPI.Services
+{
+    public class RoomBookingService : IRoomBookingService
+    {
+        private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
+
+        public RoomBookingService(AppDbContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<RoomBookingResponseDto>> GetAllAsync()
+        {
+            var roomBookings = await _context.RoomBookings
+                .Include(r => r.Room)
+                .Include(r => r.User)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<RoomBookingResponseDto>>(roomBookings);
+        }
+
+        public async Task<RoomBookingResponseDto?> GetByIdAsync(int id)
+        {
+            var roomBooking = await _context.RoomBookings
+                .Include(r => r.Room)
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            return roomBooking != null ? _mapper.Map<RoomBookingResponseDto>(roomBooking) : null;
+        }
+
+        public async Task<RoomBookingResponseDto> CreateAsync(CreateRoomBookingDto dto)
+        {
+            await ValidateBookingAsync(dto.RoomId, dto.StartTime, dto.EndTime);
+
+            var booking = _mapper.Map<RoomBooking>(dto);
+            booking.UserId = 2; // TODO: Ambil UserId dari Auth
+
+            _context.RoomBookings.Add(booking);
+            await _context.SaveChangesAsync();
+
+            var result = await _context.RoomBookings
+                .Include(r => r.Room).Include(r => r.User)
+                .FirstOrDefaultAsync(r => r.Id == booking.Id);
+
+            return _mapper.Map<RoomBookingResponseDto>(result);
+        }
+
+        public async Task<bool> UpdateAsync(int id, UpdateRoomBookingDto dto)
+        {
+            var roomBooking = await _context.RoomBookings.FindAsync(id);
+            if (roomBooking == null) return false;
+
+            await ValidateBookingAsync(roomBooking.RoomId, dto.StartTime, dto.EndTime, id);
+
+            _mapper.Map(dto, roomBooking);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var roomBooking = await _context.RoomBookings.FindAsync(id);
+            if (roomBooking == null) return false;
+
+            _context.RoomBookings.Remove(roomBooking);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        private async Task ValidateBookingAsync(int roomId, DateTime start, DateTime end, int? excludeId = null)
+        {
+            var room = await _context.Rooms.FindAsync(roomId);
+    
+            if (room == null) throw new Exception(ErrorMessages.RoomNotFound);
+
+            if (!room.IsActive) throw new Exception(ErrorMessages.RoomInactive);
+
+            if (start >= end) throw new Exception(ErrorMessages.InvalidTimeRange);
+
+            var isOverlapping = await _context.RoomBookings
+                .AnyAsync(b => b.RoomId == roomId && 
+                            b.Id != excludeId && 
+                            b.Status != "Rejected" && 
+                            b.Status != "Cancelled" &&
+                            start < b.EndTime && 
+                            end > b.StartTime);
+
+            if (isOverlapping) throw new Exception(ErrorMessages.BookingConflict);
+        }
+    }
+}

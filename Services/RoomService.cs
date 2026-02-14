@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using PeminjamanRuanganAPI.Constants;
 using PeminjamanRuanganAPI.Data;
 using PeminjamanRuanganAPI.DTO;
 using PeminjamanRuanganAPI.Models;
@@ -56,9 +57,30 @@ namespace PeminjamanRuanganAPI.Services
             var room = await _context.Rooms.FindAsync(id);
             if (room == null) return false;
 
+            var hasActiveBookings = await _context.RoomBookings
+                .AnyAsync(rb => rb.RoomId == id && 
+                                rb.Status != BookingStatuses.Rejected && 
+                                rb.Status != BookingStatuses.Cancelled);
+
+            if (hasActiveBookings)
+            {
+                throw new Exception(ErrorMessages.RoomHasActiveBookings);
+            }
+
             _context.Rooms.Remove(room);
             await _context.SaveChangesAsync();
 
+            return true;
+        }
+
+        public async Task<bool> SetActiveAsync(int id, bool isActive)
+        {
+            var room = await _context.Rooms.FindAsync(id);
+            if (room == null) return false;
+
+            room.IsActive = isActive;
+
+            await _context.SaveChangesAsync();
             return true;
         }
     }
