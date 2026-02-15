@@ -58,3 +58,6 @@ nunit-*.xml
 *.db-shm
 *.db-wal
 
+# Ignore local configuration
+appsettings.json
+appsettings.Development.json

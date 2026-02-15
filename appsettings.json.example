@@ -1,13 +1,13 @@
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Data Source=campus_room_booking.db"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=NAMA_DATABASE;Username=postgres;Password=PASSWORD"
   },
 
   "Jwt": {
-    "Key": "FSGC8kL0At93x7DH8yvzEeltrG44g-yDlBKKsYyamcsQhGtCFlBMWU5318sqctowyOVrSQVux1dzdhkhiCm2xg",
+    "Key": "MINIMAL_32_KARAKTER_RAHASIA_DISINI",
     "Issuer": "PeminjamanRuanganAPI",
     "Audience": "PeminjamanRuanganApp"
-  },
+  }
 
   "Logging": {
     "LogLevel": {

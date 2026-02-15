@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PeminjamanRuanganAPI.Data;
 
 #nullable disable
@@ -11,87 +12,89 @@ using PeminjamanRuanganAPI.Data;
 namespace PeminjamanRuangan.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260213120802_AddSeeders")]
-    partial class AddSeeders
+    [Migration("20260215110014_InitialPostgres")]
+    partial class InitialPostgres
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.3");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("PeminjamanRuanganAPI.Models.BookingStatusHistory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("ChangedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("ChangedByUserId")
-                        .HasColumnType("INTEGER");
+                    b.Property<int?>("ChangedByUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("NewStatus")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("OldStatus")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("RoomBookingId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
 
                     b.HasIndex("RoomBookingId");
 
                     b.ToTable("BookingStatusHistories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ChangedAt = new DateTime(2026, 1, 1, 9, 5, 0, 0, DateTimeKind.Unspecified),
-                            ChangedByUserId = 2,
-                            NewStatus = "Pending",
-                            OldStatus = "Pending",
-                            RoomBookingId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            ChangedAt = new DateTime(2026, 1, 1, 9, 5, 0, 0, DateTimeKind.Unspecified),
-                            ChangedByUserId = 2,
-                            NewStatus = "Pending",
-                            OldStatus = "Pending",
-                            RoomBookingId = 2
-                        });
                 });
 
             modelBuilder.Entity("PeminjamanRuanganAPI.Models.Room", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Capacity")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -104,6 +107,7 @@ namespace PeminjamanRuangan.API.Migrations
                             Capacity = 30,
                             Description = "Ruang kelas",
                             IsActive = true,
+                            IsDeleted = false,
                             Location = "Gedung D3, LT. 2",
                             Name = "HH-203"
                         },
@@ -113,6 +117,7 @@ namespace PeminjamanRuangan.API.Migrations
                             Capacity = 30,
                             Description = "Ruang kelas",
                             IsActive = true,
+                            IsDeleted = false,
                             Location = "Gedung SAW, LT. 6",
                             Name = "SAW-06.06"
                         },
@@ -122,6 +127,7 @@ namespace PeminjamanRuangan.API.Migrations
                             Capacity = 120,
                             Description = "Ruang kelas",
                             IsActive = true,
+                            IsDeleted = false,
                             Location = "Gedung SAW, LT. 7",
                             Name = "SAW-07.10"
                         });
@@ -131,36 +137,41 @@ namespace PeminjamanRuangan.API.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("EndTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Purpose")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("RoomId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("StartTime")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -169,55 +180,37 @@ namespace PeminjamanRuangan.API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RoomBookings");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2026, 1, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            EndTime = new DateTime(2024, 7, 1, 11, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Purpose = "Diskusi Tugas Akhir",
-                            RoomId = 1,
-                            StartTime = new DateTime(2024, 7, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Pending",
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2026, 1, 1, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            EndTime = new DateTime(2024, 7, 2, 15, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDeleted = false,
-                            Purpose = "Seminar Proyek",
-                            RoomId = 3,
-                            StartTime = new DateTime(2024, 7, 2, 13, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Pending",
-                            UserId = 2
-                        });
                 });
 
             modelBuilder.Entity("PeminjamanRuanganAPI.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -228,6 +221,7 @@ namespace PeminjamanRuangan.API.Migrations
                         {
                             Id = 1,
                             Email = "admin@campus.com",
+                            IsDeleted = false,
                             PasswordHash = "$2a$11$ec/jgyW.C8Q61nprj0IvVesMTiFyg3eaF0hMc/eNSo1PaWIR6uPiC",
                             Role = "Admin",
                             Username = "admin"
@@ -236,6 +230,7 @@ namespace PeminjamanRuangan.API.Migrations
                         {
                             Id = 2,
                             Email = "user@campus.com",
+                            IsDeleted = false,
                             PasswordHash = "$2a$11$Op6pjkCaU.9FkqNrtWkJ2OpWe/FE8f5urbgfPZhZRaP8d5743/eUu",
                             Role = "User",
                             Username = "user"
@@ -244,11 +239,17 @@ namespace PeminjamanRuangan.API.Migrations
 
             modelBuilder.Entity("PeminjamanRuanganAPI.Models.BookingStatusHistory", b =>
                 {
+                    b.HasOne("PeminjamanRuanganAPI.Models.User", "ChangedByUser")
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId");
+
                     b.HasOne("PeminjamanRuanganAPI.Models.RoomBooking", "RoomBooking")
                         .WithMany("StatusHistories")
                         .HasForeignKey("RoomBookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ChangedByUser");
 
                     b.Navigation("RoomBooking");
                 });
