@@ -165,7 +165,7 @@ namespace PeminjamanRuanganAPI.Controllers
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
                 var role = User.FindFirstValue(ClaimTypes.Role)!;
 
-                var bookingExists = await _service.GetByIdAsync(id, userId, role);
+                var bookingExists = await _service.GetByIdAsync(id);
                 if (bookingExists == null)            
                 {
                     return NotFound();

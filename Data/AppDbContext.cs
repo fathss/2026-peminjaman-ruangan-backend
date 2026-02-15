@@ -36,8 +36,6 @@ namespace PeminjamanRuanganAPI.Data
 
             UserSeeders.Seed(modelBuilder);
             RoomSeeder.Seed(modelBuilder);
-            RoomBookingSeeder.Seed(modelBuilder);
-            BookingStatusHistorySeeder.Seed(modelBuilder);
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
