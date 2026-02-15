@@ -1,10 +1,13 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using PeminjamanRuanganAPI.DTO;
 using PeminjamanRuanganAPI.Services;
 
 namespace PeminjamanRuanganAPI.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class RoomBookingsController : ControllerBase
     {
@@ -19,10 +22,13 @@ namespace PeminjamanRuanganAPI.Controllers
 
         // Get: api/roombookings
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<RoomBookingResponseDto>>> GetAll()
         {
-            var bookings = await _service.GetAllAsync();
-            return Ok(bookings);
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var role = User.FindFirstValue(ClaimTypes.Role)!;
+
+            var results = await _service.GetAllAsync(userId, role);
+            return Ok(results);
         }
 
         // Get: api/roombookings/{id}
@@ -39,9 +45,11 @@ namespace PeminjamanRuanganAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateRoomBookingDto dto)
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
             try
             {
-                var createdBooking = await _service.CreateAsync(dto);
+                var createdBooking = await _service.CreateAsync(dto, userId);
                 return CreatedAtAction(nameof(GetById), new { id = createdBooking.Id }, createdBooking);
             }
             catch (Exception ex)
@@ -54,9 +62,12 @@ namespace PeminjamanRuanganAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateRoomBookingDto dto)
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var role = User.FindFirstValue(ClaimTypes.Role)!;
+
             try
             {
-                var success = await _service.UpdateAsync(id, dto);
+                var success = await _service.UpdateAsync(id, dto, userId, role);
                 if (!success) return NotFound();
 
                 return NoContent();
@@ -85,12 +96,13 @@ namespace PeminjamanRuanganAPI.Controllers
         }   
 
         // Put: api/roombookings/{id}/approve
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}/approve")]
         public async Task<IActionResult> Approve(int id)
         {
             try
             {
-                var adminId = 1; // TODO: Ambil UserId dari Auth
+                var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
                 var success = await _service.ApproveAsync(id, adminId);
 
@@ -105,12 +117,13 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Put: api/roombookings/{id}/reject
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}/reject")]
         public async Task<IActionResult> Reject(int id)
         {
             try
             {
-                var adminId = 1; // TODO: Ambil UserId dari Auth
+                var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
                 var success = await _service.RejectAsync(id, adminId);
 
@@ -128,15 +141,14 @@ namespace PeminjamanRuanganAPI.Controllers
         [HttpPut("{id}/cancel")]
         public async Task<IActionResult> Cancel(int id)
         {
-            try
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var role = User.FindFirstValue(ClaimTypes.Role)!;
+
+            try 
             {
-                var userId = 2; // TODO: Ambil UserId dari Auth
-
-                var success = await _service.CancelAsync(id, userId);
-
+                var success = await _service.CancelAsync(id, userId, role);
                 if (!success) return NotFound();
-
-                return NoContent();
+                return Ok(new { message = "Booking berhasil dibatalkan" });
             }
             catch (Exception ex)
             {
@@ -148,15 +160,25 @@ namespace PeminjamanRuanganAPI.Controllers
         [HttpGet("{id}/histories")]
         public async Task<ActionResult<IEnumerable<StatusHistoryDto>>> GetHistoryById(int id)
         {
-            var bookingExists = await _service.GetByIdAsync(id);
-            if (bookingExists == null)            
+            try
             {
-                return NotFound();
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var role = User.FindFirstValue(ClaimTypes.Role)!;
+
+                var bookingExists = await _service.GetByIdAsync(id, userId, role);
+                if (bookingExists == null)            
+                {
+                    return NotFound();
+                }
+
+                var histories = await _historyService.GetByBookingIdAsync(id);
+
+                return Ok(histories ?? new List<StatusHistoryDto>());
             }
-
-            var histories = await _historyService.GetByBookingIdAsync(id);
-
-            return Ok(histories ?? new List<StatusHistoryDto>());
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

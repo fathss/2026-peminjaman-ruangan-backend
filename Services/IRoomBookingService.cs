@@ -5,13 +5,13 @@ namespace PeminjamanRuanganAPI.Services
 {
     public interface IRoomBookingService
     {
-        Task<IEnumerable<RoomBookingResponseDto>> GetAllAsync();
+        Task<IEnumerable<RoomBookingResponseDto>> GetAllAsync(int? userId = null, string? role = null);
 
-        Task<RoomBookingResponseDto?> GetByIdAsync(int id);
+        Task<RoomBookingResponseDto?> GetByIdAsync(int bookingId);
 
-        Task<RoomBookingResponseDto> CreateAsync(CreateRoomBookingDto dto);
+        Task<RoomBookingResponseDto> CreateAsync(CreateRoomBookingDto dto, int userId);
 
-        Task<bool> UpdateAsync(int id, UpdateRoomBookingDto dto);
+        Task<bool> UpdateAsync(int bookingId, UpdateRoomBookingDto dto, int userId, string userRole);
 
         Task<bool> DeleteAsync(int id);
 
@@ -19,6 +19,6 @@ namespace PeminjamanRuanganAPI.Services
 
         Task<bool> RejectAsync(int id, int changedByUserId);
 
-        Task<bool> CancelAsync(int id, int changedByUserId);
+        Task<bool> CancelAsync(int id, int changedByUserId, string userRole);
     }
 }

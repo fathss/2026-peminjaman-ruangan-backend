@@ -21,7 +21,9 @@ namespace PeminjamanRuanganAPI.Services
         public async Task<IEnumerable<StatusHistoryDto>> GetByBookingIdAsync(int bookingId)
         {
             var results = await _context.BookingStatusHistories
+                .Include(h => h.ChangedByUser)
                 .Where(h => h.RoomBookingId == bookingId)
+                .OrderByDescending(h => h.ChangedAt)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<StatusHistoryDto>>(results);

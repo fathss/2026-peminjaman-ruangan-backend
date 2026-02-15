@@ -17,5 +17,6 @@ namespace PeminjamanRuanganAPI.Models
             = DateTime.Now;
 
         public int? ChangedByUserId { get; set; }
+        public User? ChangedByUser { get; set; }
     }
 }

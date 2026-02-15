@@ -26,7 +26,12 @@ namespace PeminjamanRuanganAPI.Mappings
             CreateMap<UpdateRoomBookingDto, RoomBooking>();
 
             // ------- BookingStatusHistory Mappings -------
-            CreateMap<BookingStatusHistory, StatusHistoryDto>();
+            CreateMap<BookingStatusHistory, StatusHistoryDto>()
+                .ForMember(dest => dest.ChangedBy, opt => opt.MapFrom(src => 
+                    src.ChangedByUser != null 
+                        ? (src.ChangedByUser.Role == "Admin" ? "Admin" : src.ChangedByUser.Username)
+                        : "System"
+                ));
         }
     }
 }

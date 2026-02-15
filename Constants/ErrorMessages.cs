@@ -2,6 +2,11 @@ namespace PeminjamanRuanganAPI.Constants
 {
     public static class ErrorMessages
     {
+        public const string UsernameOrEmailTaken = "Username atau email sudah digunakan.";
+        public const string UsernameOrEmailWrong = "Username atau password salah.";
+        public const string UnauthorizedCancel = "Anda tidak memiliki akses untuk membatalkan pesanan ini.";
+        public const string UnauthorizedViewAccess = "Anda tidak memiliki akses untuk melihat data ini.";
+        public const string UnauthorizedEditAccess = "Anda tidak memiliki akses untuk mengedit data ini.";
         public const string RoomHasActiveBookings = "Ruangan tidak dapat dihapus karena masih memiliki jadwal booking aktif/menunggu persetujuan.";
         public const string RoomInactive = "Ruangan saat ini sedang tidak dapat digunakan.";
         public const string RoomNotFound = "Ruangan tidak ditemukan.";
