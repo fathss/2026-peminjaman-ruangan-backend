@@ -10,6 +10,6 @@ namespace PeminjamanRuanganAPI.DTO
 
         public DateTime ChangedAt { get; set; }
 
-        public int? ChangedByUserId { get; set; }
+        public string? ChangedBy { get; set; }
     }
 }

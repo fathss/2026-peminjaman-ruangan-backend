@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using PeminjamanRuanganAPI.DTO;
 using PeminjamanRuanganAPI.Services;
 
 namespace PeminjamanRuanganAPI.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class RoomsController : ControllerBase
     {
@@ -17,10 +19,10 @@ namespace PeminjamanRuanganAPI.Controllers
 
         // Get: api/rooms
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetAll()
         {
-            var rooms = await _service.GetAllAsync();
-            return Ok(rooms);
+            var results = await _service.GetAllAsync();
+            return Ok(results);
         }
 
         // Get: api/rooms/{id}
@@ -35,6 +37,7 @@ namespace PeminjamanRuanganAPI.Controllers
 
         // Post: api/rooms
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(CreateRoomDto dto)
         {
             var room = await _service.CreateAsync(dto);
@@ -43,6 +46,7 @@ namespace PeminjamanRuanganAPI.Controllers
 
         // Put: api/rooms/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, UpdateRoomDto dto)
         {
             var success = await _service.UpdateAsync(id, dto);
@@ -53,6 +57,7 @@ namespace PeminjamanRuanganAPI.Controllers
 
         // Delete: api/rooms/{id}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _service.DeleteAsync(id);

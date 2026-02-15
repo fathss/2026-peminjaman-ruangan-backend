@@ -19,32 +19,43 @@ namespace PeminjamanRuanganAPI.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<RoomBookingResponseDto>> GetAllAsync()
+        public async Task<IEnumerable<RoomBookingResponseDto>> GetAllAsync(int? userId = null, string? role = null)
         {
-            var roomBookings = await _context.RoomBookings
-                .Include(r => r.Room)
-                .Include(r => r.User)
+            var query = _context.RoomBookings.AsQueryable();
+
+            if (role != "Admin" && userId.HasValue)
+            {
+                query = query.Where(b => b.UserId == userId.Value);
+            }
+
+            var bookings = await query
+                .Include(b => b.Room)
+                .Include(b => b.User)
                 .ToListAsync();
 
-            return _mapper.Map<IEnumerable<RoomBookingResponseDto>>(roomBookings);
+            return _mapper.Map<IEnumerable<RoomBookingResponseDto>>(bookings);
         }
 
-        public async Task<RoomBookingResponseDto?> GetByIdAsync(int id)
+        public async Task<RoomBookingResponseDto?> GetByIdAsync(int bookingId)
         {
             var roomBooking = await _context.RoomBookings
                 .Include(r => r.Room)
                 .Include(r => r.User)
-                .FirstOrDefaultAsync(r => r.Id == id);
+                .FirstOrDefaultAsync(r => r.Id == bookingId);
 
-            return roomBooking != null ? _mapper.Map<RoomBookingResponseDto>(roomBooking) : null;
+            if (roomBooking == null) return null;
+
+            return _mapper.Map<RoomBookingResponseDto>(roomBooking);
         }
 
-        public async Task<RoomBookingResponseDto> CreateAsync(CreateRoomBookingDto dto)
+        public async Task<RoomBookingResponseDto> CreateAsync(CreateRoomBookingDto dto, int userId)
         {
             await ValidateBookingAsync(dto.RoomId, dto.StartTime, dto.EndTime);
 
             var booking = _mapper.Map<RoomBooking>(dto);
-            booking.UserId = 2; // TODO: Ambil UserId dari Auth
+
+            booking.UserId = userId;
+            booking.Status = BookingStatuses.Pending;
 
             _context.RoomBookings.Add(booking);
             await _context.SaveChangesAsync();
@@ -56,15 +67,18 @@ namespace PeminjamanRuanganAPI.Services
             return _mapper.Map<RoomBookingResponseDto>(result);
         }
 
-        public async Task<bool> UpdateAsync(int id, UpdateRoomBookingDto dto)
+        public async Task<bool> UpdateAsync(int bookingId, UpdateRoomBookingDto dto, int userId, string userRole)
         {
-            var roomBooking = await _context.RoomBookings.FindAsync(id);
+            var roomBooking = await _context.RoomBookings.FindAsync(bookingId);
             if (roomBooking == null) return false;
+
+            if (userRole != "Admin" && roomBooking.UserId != userId)
+                throw new Exception(ErrorMessages.UnauthorizedEditAccess);
 
             if (roomBooking.Status != BookingStatuses.Pending)
                 throw new Exception(ErrorMessages.CannotEditNonPending);
 
-            await ValidateBookingAsync(roomBooking.RoomId, dto.StartTime, dto.EndTime, id); 
+            await ValidateBookingAsync(roomBooking.RoomId, dto.StartTime, dto.EndTime, bookingId); 
 
             _mapper.Map(dto, roomBooking);
             await _context.SaveChangesAsync();
@@ -95,7 +109,8 @@ namespace PeminjamanRuanganAPI.Services
                 RoomBookingId = roomBooking.Id,
                 OldStatus = oldStatus.ToString(),
                 NewStatus = newStatus.ToString(),
-                ChangedByUserId = changedByUserId
+                ChangedByUserId = changedByUserId,
+                ChangedAt = DateTime.Now
             });
 
             await _context.SaveChangesAsync();
@@ -142,10 +157,15 @@ namespace PeminjamanRuanganAPI.Services
             return true;
         }
 
-        public async Task<bool> CancelAsync(int id, int changedByUserId)
+        public async Task<bool> CancelAsync(int id, int changedByUserId, string userRole)
         {
             var roomBooking = await _context.RoomBookings.FindAsync(id);
             if (roomBooking == null) return false;
+
+            if (userRole != "Admin" && roomBooking.UserId != changedByUserId)
+            {
+                throw new Exception(ErrorMessages.UnauthorizedCancel);
+            }
 
             switch (roomBooking.Status)
             {
