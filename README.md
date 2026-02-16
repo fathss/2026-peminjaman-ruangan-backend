@@ -27,21 +27,24 @@ Project ini dibuat untuk mempermudah proses reservasi ruangan di lingkungan kamp
 
 ## Tech Stack
 * **Framework:** ASP.NET Core 10.0
-* **Database:** Entity Framework Core (SQLite)
+* **Database:** PostgreSQL
 * **Security:** JWT Authentication, BCrypt.Net
 * **Mapping Tools:** AutoMapper
-* **API Documentation:** Swagger UI & Thunder Client
+* **Testing Tool:** Swagger UI & Thunder Client
 
-## Installation
+## Installation  
 1. Clone Repository
    ```bash
    git clone https://github.com/fathss/2026-peminjaman-ruangan-backend.git
    ```
-2. Restore Dependencies
+2. Setup Configuration<br>
+   Salin file contoh konfigurasi `appsettings.json.example` dan sesuaikan dengan database lokal:
+   
+3. Restore Dependencies
    ```bash
    dotnet restore
    ```
-3. Apply Migrations
+4. Apply Migrations
    ```bash
    dotnet ef database update
    ```
@@ -55,16 +58,16 @@ Project ini dibuat untuk mempermudah proses reservasi ruangan di lingkungan kamp
    Buka browser dan arahkan ke `http://localhost:5145/swagger` (Port mungkin berbeda tergantung konfigurasi `launchSettings.json`).
 
 ## Environment Variables
-Tambahkan konfigurasi berikut pada file `appsettings.json`:
+Edit `appsettings.json` dan masukkan `Password` PostgreSQL serta `Jwt:Key` seperti contoh:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Data Source=campus_room_booking.db"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=PeminjamanRuanganDB;Username=postgres;Password=PASSWORD"
   },
 
   "Jwt": {
-    "Key": "FSGC8kL0At93x7DH8yvzEeltrG44g-yDlBKKsYyamcsQhGtCFlBMWU5318sqctowyOVrSQVux1dzdhkhiCm2xg",
+    "Key": "MINIMAL_32_KARAKTER_RAHASIA",
     "Issuer": "PeminjamanRuanganAPI",
     "Audience": "PeminjamanRuanganApp"
   },
