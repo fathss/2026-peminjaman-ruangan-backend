@@ -23,7 +23,7 @@ namespace PeminjamanRuanganAPI.Services
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                    var now = DateTime.Now;
+                    var now = DateTime.UtcNow;
 
                     // Cek Approved -> OnGoing
                     var toOnGoing = await context.RoomBookings

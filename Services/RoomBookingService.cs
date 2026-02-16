@@ -50,6 +50,9 @@ namespace PeminjamanRuanganAPI.Services
 
         public async Task<RoomBookingResponseDto> CreateAsync(CreateRoomBookingDto dto, int userId)
         {
+            dto.StartTime = dto.StartTime.ToUniversalTime();
+            dto.EndTime = dto.EndTime.ToUniversalTime();
+
             await ValidateBookingAsync(dto.RoomId, dto.StartTime, dto.EndTime);
 
             var booking = _mapper.Map<RoomBooking>(dto);
@@ -69,6 +72,9 @@ namespace PeminjamanRuanganAPI.Services
 
         public async Task<bool> UpdateAsync(int bookingId, UpdateRoomBookingDto dto, int userId, string userRole)
         {
+            dto.StartTime = dto.StartTime.ToUniversalTime();
+            dto.EndTime = dto.EndTime.ToUniversalTime();
+            
             var roomBooking = await _context.RoomBookings.FindAsync(bookingId);
             if (roomBooking == null) return false;
 
@@ -110,7 +116,7 @@ namespace PeminjamanRuanganAPI.Services
                 OldStatus = oldStatus.ToString(),
                 NewStatus = newStatus.ToString(),
                 ChangedByUserId = changedByUserId,
-                ChangedAt = DateTime.Now
+                ChangedAt = DateTime.UtcNow
             });
 
             await _context.SaveChangesAsync();
@@ -191,7 +197,7 @@ namespace PeminjamanRuanganAPI.Services
 
             if (!room.IsActive) throw new Exception(ErrorMessages.RoomInactive);
 
-            if (start < DateTime.Now) throw new Exception(ErrorMessages.StartTimeInPast);
+            if (start < DateTime.UtcNow) throw new Exception(ErrorMessages.StartTimeInPast);
 
             if (start >= end) throw new Exception(ErrorMessages.InvalidTimeRange);
 

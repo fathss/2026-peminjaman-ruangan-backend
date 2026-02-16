@@ -19,6 +19,7 @@ namespace PeminjamanRuanganAPI.Controllers
 
         // Get: api/rooms
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetAll()
         {
             var results = await _service.GetAllAsync();

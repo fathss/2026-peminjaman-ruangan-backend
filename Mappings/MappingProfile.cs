@@ -11,15 +11,15 @@ namespace PeminjamanRuanganAPI.Mappings
         {
             // ------- Room Mappings -------
             CreateMap<Room, RoomResponseDto>();
-
             CreateMap<CreateRoomDto, Room>();
-
             CreateMap<UpdateRoomDto, Room>();
 
             // ------- RoomBooking Mappings -------
             CreateMap<RoomBooking, RoomBookingResponseDto>()
                 .ForMember(dest => dest.RoomName, opt => opt.MapFrom(src => src.Room.Name))
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Username));
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.Username))
+                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime.ToLocalTime()))
+                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime.ToLocalTime()));
 
             CreateMap<CreateRoomBookingDto, RoomBooking>();
 
@@ -31,7 +31,8 @@ namespace PeminjamanRuanganAPI.Mappings
                     src.ChangedByUser != null 
                         ? (src.ChangedByUser.Role == "Admin" ? "Admin" : src.ChangedByUser.Username)
                         : "System"
-                ));
+                ))
+                .ForMember(dest => dest.ChangedAt, opt => opt.MapFrom(src => src.ChangedAt.ToLocalTime()));
         }
     }
 }

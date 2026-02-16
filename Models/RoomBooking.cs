@@ -22,7 +22,7 @@ namespace PeminjamanRuanganAPI.Models
             = BookingStatuses.Pending;
 
         public DateTime CreatedAt { get; set; }
-            = DateTime.Now;
+            = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
 
