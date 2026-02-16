@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using PeminjamanRuanganAPI.Constants;
+using PeminjamanRuanganAPI.Data;
 using PeminjamanRuanganAPI.DTO;
 using PeminjamanRuanganAPI.Services;
 
@@ -10,10 +12,12 @@ namespace PeminjamanRuanganAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly AppDbContext _context;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, AppDbContext context)
         {
             _authService = authService;
+            _context = context;
         }
 
         // POST: api/auth/register
@@ -34,15 +38,24 @@ namespace PeminjamanRuanganAPI.Controllers
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDto dto)
         {
             var token = await _authService.LoginAsync(dto);
+            
             if (token == null)
             {
                 return Unauthorized(new { message = ErrorMessages.UsernameOrEmailWrong });
             }
 
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
+
+            if (user == null) 
+            {
+                return Unauthorized(new { message = "User data not found." });
+            }
+
             return Ok(new AuthResponseDto
             {
                 Username = dto.Username,
-                Token = token
+                Token = token,
+                Role = user.Role
             });
         }
     }
