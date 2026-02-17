@@ -4,6 +4,7 @@ namespace PeminjamanRuanganAPI.Constants
     {
         public const string UsernameOrEmailTaken = "Username atau email sudah digunakan.";
         public const string UsernameOrEmailWrong = "Username atau password salah.";
+        public const string UnauthorizedComplete = "Anda tidak memiliki akses untuk menyelesaikan pesanan ini.";
         public const string UnauthorizedCancel = "Anda tidak memiliki akses untuk membatalkan pesanan ini.";
         public const string UnauthorizedViewAccess = "Anda tidak memiliki akses untuk melihat data ini.";
         public const string UnauthorizedEditAccess = "Anda tidak memiliki akses untuk mengedit data ini.";

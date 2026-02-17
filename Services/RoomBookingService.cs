@@ -59,6 +59,8 @@ namespace PeminjamanRuanganAPI.Services
 
             booking.UserId = userId;
             booking.Status = BookingStatuses.Pending;
+            booking.StartTime = dto.StartTime.ToUniversalTime();
+            booking.EndTime = dto.EndTime.ToUniversalTime();
 
             _context.RoomBookings.Add(booking);
             await _context.SaveChangesAsync();
@@ -160,6 +162,20 @@ namespace PeminjamanRuanganAPI.Services
             }
 
             await ChangeStatusAsync(roomBooking, BookingStatuses.Rejected, changedByUserId);
+            return true;
+        }
+
+        public async Task<bool> CompleteAsync(int id, int changedByUserId, string userRole)
+        {
+            var roomBooking = await _context.RoomBookings.FindAsync(id);
+            if (roomBooking == null) return false;
+
+            if (userRole != "Admin" && roomBooking.UserId != changedByUserId)
+            {
+                throw new Exception(ErrorMessages.UnauthorizedComplete);
+            }
+
+            await ChangeStatusAsync(roomBooking, BookingStatuses.Completed, changedByUserId);
             return true;
         }
 

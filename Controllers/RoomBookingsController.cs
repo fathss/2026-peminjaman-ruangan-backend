@@ -137,6 +137,25 @@ namespace PeminjamanRuanganAPI.Controllers
             }
         }
 
+        // Put: api/roombookings/{id}/complete
+        [HttpPut("{id}/complete")]
+        public async Task<IActionResult> Complete(int id)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var role = User.FindFirstValue(ClaimTypes.Role)!;
+
+            try 
+            {
+                var success = await _service.CompleteAsync(id, userId, role);
+                if (!success) return NotFound();
+                return Ok(new { message = "Booking berhasil diselesaikan" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         // Put: api/roombookings/{id}/cancel
         [HttpPut("{id}/cancel")]
         public async Task<IActionResult> Cancel(int id)

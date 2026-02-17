@@ -60,7 +60,8 @@ namespace PeminjamanRuanganAPI.Services
             var hasActiveBookings = await _context.RoomBookings
                 .AnyAsync(rb => rb.RoomId == id && 
                                 rb.Status != BookingStatuses.Rejected && 
-                                rb.Status != BookingStatuses.Cancelled);
+                                rb.Status != BookingStatuses.Cancelled && 
+                                rb.Status != BookingStatuses.Completed);
 
             if (hasActiveBookings)
             {

@@ -19,6 +19,8 @@ namespace PeminjamanRuanganAPI.Services
 
         Task<bool> RejectAsync(int id, int changedByUserId);
 
+        Task<bool> CompleteAsync(int id, int changedByUserId, string userRole);
+
         Task<bool> CancelAsync(int id, int changedByUserId, string userRole);
     }
 }

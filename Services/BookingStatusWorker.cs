@@ -23,11 +23,13 @@ namespace PeminjamanRuanganAPI.Services
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                    var now = DateTime.UtcNow;
+                    var now = DateTime.UtcNow.AddHours(7); 
+
+                    _logger.LogInformation($"Worker running at: {now:yyyy-MM-dd HH:mm:ss} WIB");
 
                     // Cek Approved -> OnGoing
                     var toOnGoing = await context.RoomBookings
-                        .Where(b => b.Status == BookingStatuses.Approved && now >= b.StartTime && now < b.EndTime)
+                        .Where(b => b.Status == BookingStatuses.Approved && now >= b.StartTime.AddHours(7))
                         .ToListAsync();
 
                     foreach (var b in toOnGoing) 
@@ -39,14 +41,14 @@ namespace PeminjamanRuanganAPI.Services
                             RoomBookingId = b.Id,
                             OldStatus = BookingStatuses.Approved,
                             NewStatus = BookingStatuses.OnGoing,
-                            ChangedAt = now,
+                            ChangedAt = now.AddHours(-7),
                             ChangedByUserId = null // System update, tidak ada user yang mengubah
                         });
                     }
 
                     // Cek OnGoing -> Completed
                     var toCompleted = await context.RoomBookings
-                        .Where(b => b.Status == BookingStatuses.OnGoing && now >= b.EndTime)
+                        .Where(b => b.Status == BookingStatuses.OnGoing && now >= b.EndTime.AddHours(7))
                         .ToListAsync();
 
                     foreach (var b in toCompleted) 
@@ -58,7 +60,7 @@ namespace PeminjamanRuanganAPI.Services
                             RoomBookingId = b.Id,
                             OldStatus = BookingStatuses.OnGoing,
                             NewStatus = BookingStatuses.Completed,
-                            ChangedAt = now,
+                            ChangedAt = now.AddHours(-7),
                             ChangedByUserId = null // System update, tidak ada user yang mengubah
                         });
                     }
