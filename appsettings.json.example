@@ -1,0 +1,19 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=NAMA_DATABASE;Username=postgres;Password=PASSWORD"
+  },
+
+  "Jwt": {
+    "Key": "MINIMAL_32_KARAKTER_RAHASIA_DISINI",
+    "Issuer": "PeminjamanRuanganAPI",
+    "Audience": "PeminjamanRuanganApp"
+  }
+
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

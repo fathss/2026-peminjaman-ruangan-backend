@@ -1,0 +1,12 @@
+namespace PeminjamanRuanganAPI.Constants
+{
+    public static class BookingStatuses
+    {
+        public const string Pending = "Pending";
+        public const string Approved = "Approved";
+        public const string Rejected = "Rejected";
+        public const string OnGoing = "OnGoing";
+        public const string Cancelled = "Cancelled";
+        public const string Completed = "Completed";
+    }
+}

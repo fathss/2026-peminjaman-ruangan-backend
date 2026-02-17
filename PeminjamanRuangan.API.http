@@ -1,6 +1,7 @@
 @PeminjamanRuangan.API_HostAddress = http://localhost:5145
 
-GET {{PeminjamanRuangan.API_HostAddress}}/weatherforecast/
-Accept: application/json
+# GET {{PeminjamanRuangan.API_HostAddress}}/weatherforecast/
+# Accept: application/json
 
-###
+# ###
+# POST {{PeminjamanRuangan.API_HostAddress}}/api/auth/register
