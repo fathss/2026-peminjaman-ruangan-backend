@@ -85,7 +85,7 @@ Ikuti langkah berikut untuk setup backend secara manual di local environment.
    dotnet run
    ```
 
-8. Verifikasi API
+8. Verifikasi API<br>
    Buka Swagger UI di `http://localhost:5145/swagger` (port bisa berbeda sesuai `launchSettings.json`).
 
 ## Installation
@@ -96,7 +96,7 @@ Gunakan bagian **Manual Backend Setup (Local)** di atas untuk proses instalasi l
    ```bash
    dotnet run
    ```
-2. Access Swagger UI
+2. Access Swagger UI<br>
    Buka browser dan arahkan ke `http://localhost:5145/swagger` (port mungkin berbeda tergantung konfigurasi `launchSettings.json`).
 
 ## Swagger Authorization
@@ -104,7 +104,7 @@ Gunakan bagian **Manual Backend Setup (Local)** di atas untuk proses instalasi l
 Untuk endpoint yang membutuhkan autentikasi:
 
 1. Login lewat `POST /api/auth/login`.
-2. Copy nilai `token` dari response (Tanpa kurung kurawal).
+2. Copy nilai `token` dari response (Tanpa tanda petik).
 3. Klik tombol `Authorize` di Swagger.
 4. Paste token mentah `eyJ...`
 
