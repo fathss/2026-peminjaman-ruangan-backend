@@ -27,7 +27,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Get: api/rooms/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var room = await _service.GetByIdAsync(id);
@@ -46,7 +46,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Put: api/rooms/{id}
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, UpdateRoomDto dto)
         {
@@ -57,7 +57,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Delete: api/rooms/{id}
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {

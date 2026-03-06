@@ -1,4 +1,20 @@
 # Changelog
+
+## [1.1.0] - 2026-03-06
+### Added
+- Menambahkan `Dockerfile` untuk build dan publish API menggunakan multi-stage image.
+- Menambahkan `.dockerignore` untuk mengoptimalkan Docker build context.
+- Menambahkan dokumentasi setup backend manual dan panduan otorisasi Swagger di `README.md`.
+
+### Changed
+- Memperbarui konfigurasi autentikasi di `Program.cs` dengan default JWT bearer scheme.
+- Memperbarui konfigurasi CORS di `Program.cs` untuk mengizinkan origin `http://localhost:5173` dan `http://localhost:3000`.
+- Memigrasikan konfigurasi OpenAPI/Swagger di `Program.cs` ke `AddOpenApi` + `MapOpenApi` dan menambahkan security scheme bearer JWT.
+- Memperbarui endpoint route parameter menjadi `id:int` di `RoomBookingsController` dan `RoomsController` untuk memperjelas kontrak route integer dan memperbaiki validasi parameter `id` di Swagger UI.
+
+### Fixed
+- Memperbaiki issue Swagger UI pada endpoint berbasis path parameter (`/api/roombookings/{id}`, `/api/rooms/{id}`) yang menampilkan error `For 'id': Required field is not provided` meskipun nilai `id` sudah diisi.
+
 ## [1.0.0] - 2026-02-15
 ### Added
 - Fitur Autentikasi menggunakan JWT (JSON Web Token).

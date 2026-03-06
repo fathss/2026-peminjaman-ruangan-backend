@@ -32,7 +32,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Get: api/roombookings/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var booking = await _service.GetByIdAsync(id);
@@ -59,7 +59,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Put: api/roombookings/{id}
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, UpdateRoomBookingDto dto)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -79,7 +79,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Delete: api/roombookings/{id}
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -97,7 +97,7 @@ namespace PeminjamanRuanganAPI.Controllers
 
         // Put: api/roombookings/{id}/approve
         [Authorize(Roles = "Admin")]
-        [HttpPut("{id}/approve")]
+        [HttpPut("{id:int}/approve")]
         public async Task<IActionResult> Approve(int id)
         {
             try
@@ -118,7 +118,7 @@ namespace PeminjamanRuanganAPI.Controllers
 
         // Put: api/roombookings/{id}/reject
         [Authorize(Roles = "Admin")]
-        [HttpPut("{id}/reject")]
+        [HttpPut("{id:int}/reject")]
         public async Task<IActionResult> Reject(int id)
         {
             try
@@ -138,7 +138,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Put: api/roombookings/{id}/complete
-        [HttpPut("{id}/complete")]
+        [HttpPut("{id:int}/complete")]
         public async Task<IActionResult> Complete(int id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -157,7 +157,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Put: api/roombookings/{id}/cancel
-        [HttpPut("{id}/cancel")]
+        [HttpPut("{id:int}/cancel")]
         public async Task<IActionResult> Cancel(int id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -176,7 +176,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Get: api/roombookings/{id}/histories
-        [HttpGet("{id}/histories")]
+        [HttpGet("{id:int}/histories")]
         public async Task<ActionResult<IEnumerable<StatusHistoryDto>>> GetHistoryById(int id)
         {
             try
