@@ -1,0 +1,24 @@
+# Source control
+.git
+.gitignore
+
+# IDE/editor
+.vs
+.vscode
+*.user
+*.suo
+
+# Build outputs
+bin
+obj
+out
+
+# Docker/build metadata
+.dockerignore
+
+# Generated migration artifact
+Migrations/supabase.sql
+
+# OS junk
+.DS_Store
+Thumbs.db
