@@ -1,23 +1,40 @@
 # Source control
 .git
 .gitignore
+.gitattributes
 
 # IDE/editor
 .vs
 .vscode
 *.user
 *.suo
+*.swp
+*.tmp
+*~
 
 # Build outputs
-bin
-obj
-out
+**/bin/
+**/obj/
+out/
+publish/
+artifacts/
 
 # Docker/build metadata
 .dockerignore
 
 # Generated migration artifact
 Migrations/supabase.sql
+
+# Local environment/config files
+.env
+.env.*
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # OS junk
 .DS_Store
