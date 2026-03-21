@@ -26,9 +26,8 @@ artifacts/
 Migrations/supabase.sql
 
 # Local environment/config files
-.env
-.env.*
-*.local
+appsettinsgs.json
+appsettings.*.json
 
 # Logs
 *.log

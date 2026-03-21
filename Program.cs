@@ -44,9 +44,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://pr-frontend.up.railway.app")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            policy.WithOrigins(builder.Configuration["AllowedOrigin"] ?? "http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
         });
 });
 
@@ -87,9 +87,6 @@ app.MapOpenApi();
 app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/openapi/v1.json", "PeminjamanRuangan.API v1");
-
-    // // Accept raw JWT in Swagger authorize and normalize to Bearer header.
-    // options.UseRequestInterceptor("(request)=>{const authHeader=request.headers.Authorization||request.headers.authorization;if(authHeader&&!authHeader.toLowerCase().startsWith('bearer ')){request.headers.Authorization='Bearer '+authHeader;delete request.headers.authorization;}return request;}");
 });
 
 app.UseHttpsRedirection();
