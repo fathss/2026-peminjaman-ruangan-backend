@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.0] - 2026-03-22
+### Added
+- Menambahkan dukungan runtime configuration injection untuk menyesuaikan konfigurasi aplikasi saat deploy.
+- Menambahkan koneksi database PostgreSQL Neon melalui migrasi terbaru.
+- Menambahkan dukungan origin frontend production pada kebijakan CORS.
+
+### Changed
+- Refactor `RoomBookingService` untuk menggunakan lazy status update pada alur service.
+- Menghapus ketergantungan update status otomatis melalui `BookingStatusWorker`.
+- Memperbarui Docker build flow (`Dockerfile` dan `.dockerignore`) agar proses build lebih optimal.
+
 ## [1.1.0] - 2026-03-06
 ### Added
 - Menambahkan `Dockerfile` untuk build dan publish API menggunakan multi-stage image.
