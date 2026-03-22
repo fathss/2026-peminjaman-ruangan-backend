@@ -33,6 +33,11 @@ namespace PeminjamanRuanganAPI.Services
                 .Include(b => b.User)
                 .ToListAsync();
 
+            foreach (var b in bookings)
+            {
+                await PerformStatusUpdate(b);
+            }
+
             return _mapper.Map<IEnumerable<RoomBookingResponseDto>>(bookings);
         }
 
@@ -45,13 +50,15 @@ namespace PeminjamanRuanganAPI.Services
 
             if (roomBooking == null) return null;
 
+            await PerformStatusUpdate(roomBooking);
+
             return _mapper.Map<RoomBookingResponseDto>(roomBooking);
         }
 
         public async Task<RoomBookingResponseDto> CreateAsync(CreateRoomBookingDto dto, int userId)
         {
-            dto.StartTime = dto.StartTime.ToUniversalTime();
-            dto.EndTime = dto.EndTime.ToUniversalTime();
+            dto.StartTime = dto.StartTime;
+            dto.EndTime = dto.EndTime;
 
             await ValidateBookingAsync(dto.RoomId, dto.StartTime, dto.EndTime);
 
@@ -59,8 +66,8 @@ namespace PeminjamanRuanganAPI.Services
 
             booking.UserId = userId;
             booking.Status = BookingStatuses.Pending;
-            booking.StartTime = dto.StartTime.ToUniversalTime();
-            booking.EndTime = dto.EndTime.ToUniversalTime();
+            booking.StartTime = dto.StartTime;
+            booking.EndTime = dto.EndTime;
 
             _context.RoomBookings.Add(booking);
             await _context.SaveChangesAsync();
@@ -74,9 +81,9 @@ namespace PeminjamanRuanganAPI.Services
 
         public async Task<bool> UpdateAsync(int bookingId, UpdateRoomBookingDto dto, int userId, string userRole)
         {
-            dto.StartTime = dto.StartTime.ToUniversalTime();
-            dto.EndTime = dto.EndTime.ToUniversalTime();
-            
+            dto.StartTime = dto.StartTime;
+            dto.EndTime = dto.EndTime;
+
             var roomBooking = await _context.RoomBookings.FindAsync(bookingId);
             if (roomBooking == null) return false;
 
@@ -86,7 +93,7 @@ namespace PeminjamanRuanganAPI.Services
             if (roomBooking.Status != BookingStatuses.Pending)
                 throw new Exception(ErrorMessages.CannotEditNonPending);
 
-            await ValidateBookingAsync(roomBooking.RoomId, dto.StartTime, dto.EndTime, bookingId); 
+            await ValidateBookingAsync(roomBooking.RoomId, dto.StartTime, dto.EndTime, bookingId);
 
             _mapper.Map(dto, roomBooking);
             await _context.SaveChangesAsync();
@@ -106,23 +113,6 @@ namespace PeminjamanRuanganAPI.Services
             return true;
         }
 
-        private async Task ChangeStatusAsync(RoomBooking roomBooking, string newStatus, int changedByUserId)
-        {
-            var oldStatus = roomBooking.Status;
-
-            roomBooking.Status = newStatus;
-
-            _context.BookingStatusHistories.Add(new BookingStatusHistory
-            {
-                RoomBookingId = roomBooking.Id,
-                OldStatus = oldStatus.ToString(),
-                NewStatus = newStatus.ToString(),
-                ChangedByUserId = changedByUserId,
-                ChangedAt = DateTime.UtcNow
-            });
-
-            await _context.SaveChangesAsync();
-        }
 
         public async Task<bool> ApproveAsync(int id, int changedByUserId)
         {
@@ -205,10 +195,46 @@ namespace PeminjamanRuanganAPI.Services
             return true;
         }
 
+        private async Task ChangeStatusAsync(RoomBooking roomBooking, string newStatus, int? changedByUserId)
+        {
+            if (roomBooking.Status == newStatus) return;
+
+            var oldStatus = roomBooking.Status;
+
+            roomBooking.Status = newStatus;
+
+            _context.BookingStatusHistories.Add(new BookingStatusHistory
+            {
+                RoomBookingId = roomBooking.Id,
+                OldStatus = oldStatus.ToString(),
+                NewStatus = newStatus.ToString(),
+                ChangedByUserId = changedByUserId,
+                ChangedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task PerformStatusUpdate(RoomBooking roomBooking)
+        {
+            var now = DateTime.UtcNow;
+            var bookingStartTime = roomBooking.StartTime;
+            var bookingEndTime = roomBooking.EndTime;
+
+            if ((roomBooking.Status == BookingStatuses.OnGoing || roomBooking.Status == BookingStatuses.Approved) && bookingEndTime < now)
+            {
+                await ChangeStatusAsync(roomBooking, BookingStatuses.Completed, null);
+            }
+
+            if (roomBooking.Status == BookingStatuses.Approved && bookingStartTime <= now && bookingEndTime >= now)
+            {
+                await ChangeStatusAsync(roomBooking, BookingStatuses.OnGoing, null);
+            }
+        }
         private async Task ValidateBookingAsync(int roomId, DateTime start, DateTime end, int? excludeId = null)
         {
             var room = await _context.Rooms.FindAsync(roomId);
-    
+
             if (room == null) throw new Exception(ErrorMessages.RoomNotFound);
 
             if (!room.IsActive) throw new Exception(ErrorMessages.RoomInactive);
@@ -218,12 +244,12 @@ namespace PeminjamanRuanganAPI.Services
             if (start >= end) throw new Exception(ErrorMessages.InvalidTimeRange);
 
             var isOverlapping = await _context.RoomBookings
-                .AnyAsync(b => b.RoomId == roomId && 
-                            b.Id != excludeId && 
-                            b.Status != BookingStatuses.Cancelled && 
+                .AnyAsync(b => b.RoomId == roomId &&
+                            b.Id != excludeId &&
+                            b.Status != BookingStatuses.Cancelled &&
                             b.Status != BookingStatuses.Rejected &&
                             b.Status != BookingStatuses.Completed &&
-                            start < b.EndTime && 
+                            start < b.EndTime &&
                             end > b.StartTime);
 
             if (isOverlapping) throw new Exception(ErrorMessages.BookingConflict);

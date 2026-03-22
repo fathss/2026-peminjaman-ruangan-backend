@@ -93,7 +93,7 @@ namespace PeminjamanRuanganAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-        }   
+        }
 
         // Put: api/roombookings/{id}/approve
         [Authorize(Roles = "Admin")]
@@ -144,7 +144,7 @@ namespace PeminjamanRuanganAPI.Controllers
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var role = User.FindFirstValue(ClaimTypes.Role)!;
 
-            try 
+            try
             {
                 var success = await _service.CompleteAsync(id, userId, role);
                 if (!success) return NotFound();
@@ -163,7 +163,7 @@ namespace PeminjamanRuanganAPI.Controllers
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var role = User.FindFirstValue(ClaimTypes.Role)!;
 
-            try 
+            try
             {
                 var success = await _service.CancelAsync(id, userId, role);
                 if (!success) return NotFound();
@@ -181,15 +181,6 @@ namespace PeminjamanRuanganAPI.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var role = User.FindFirstValue(ClaimTypes.Role)!;
-
-                var bookingExists = await _service.GetByIdAsync(id);
-                if (bookingExists == null)            
-                {
-                    return NotFound();
-                }
-
                 var histories = await _historyService.GetByBookingIdAsync(id);
 
                 return Ok(histories ?? new List<StatusHistoryDto>());
