@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.0] - 2026-03-23
+### Added
+- Menambahkan enhancement endpoint detail peminjaman agar `GetById` mengembalikan detail booking beserta riwayat status (`BookingStatusHistory`).
+- Menambahkan dukungan konfigurasi koneksi database Neon melalui migration.
+
+### Changed
+- Memperbarui konfigurasi aplikasi agar nilai konfigurasi dapat diinjeksi saat runtime.
+- Memperbarui kebijakan CORS untuk menambahkan origin frontend production.
+- Memperbarui proses build container dengan peningkatan pada `Dockerfile` dan `.dockerignore`.
+- Refaktor `RoomBookingService` untuk mendukung lazy update status dan menghapus kebutuhan `BookingStatusWorker`.
+
 ## [1.1.0] - 2026-03-06
 ### Added
 - Menambahkan `Dockerfile` untuk build dan publish API menggunakan multi-stage image.
