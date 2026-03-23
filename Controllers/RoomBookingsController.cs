@@ -33,12 +33,20 @@ namespace PeminjamanRuanganAPI.Controllers
 
         // Get: api/roombookings/{id}
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<RoomBookingDetailResponseDto>> GetById(int id)
         {
             var booking = await _service.GetByIdAsync(id);
             if (booking == null) return NotFound();
 
-            return Ok(booking);
+            var histories = await _historyService.GetByBookingIdAsync(id);
+
+            var result = new RoomBookingDetailResponseDto
+            {
+                Booking = booking,
+                Histories = histories ?? new List<StatusHistoryDto>()
+            };
+
+            return Ok(result);
         }
 
         // Post: api/roombookings
@@ -176,8 +184,8 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Get: api/roombookings/{id}/histories
-        [HttpGet("{id:int}/histories")]
-        public async Task<ActionResult<IEnumerable<StatusHistoryDto>>> GetHistoryById(int id)
+        // [HttpGet("{id:int}/histories")]
+        private async Task<ActionResult<IEnumerable<StatusHistoryDto>>> GetHistoryById(int id)
         {
             try
             {

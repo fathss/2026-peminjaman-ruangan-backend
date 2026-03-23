@@ -33,11 +33,6 @@ namespace PeminjamanRuanganAPI.Services
                 .Include(b => b.User)
                 .ToListAsync();
 
-            foreach (var b in bookings)
-            {
-                await PerformStatusUpdate(b);
-            }
-
             return _mapper.Map<IEnumerable<RoomBookingResponseDto>>(bookings);
         }
 
