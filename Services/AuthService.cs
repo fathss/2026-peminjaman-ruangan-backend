@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PeminjamanRuanganAPI.Data;
 using PeminjamanRuanganAPI.DTO;
 using PeminjamanRuanganAPI.Models;
+using PeminjamanRuanganAPI.Constants;
 
 namespace PeminjamanRuanganAPI.Services
 {
@@ -20,13 +21,13 @@ namespace PeminjamanRuanganAPI.Services
             _configuration = configuration;
         }
 
-        public async Task<User?> RegisterAsync(RegisterDto dto)
+        public async Task<(User?, string?)> RegisterAsync(RegisterDto dto)
         {
             if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
-                return null;
+                return (null, ErrorMessages.UsernameTaken);
 
             if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-                return null;
+                return (null, ErrorMessages.EmailTaken);
 
             var user = new User
             {
@@ -38,17 +39,21 @@ namespace PeminjamanRuanganAPI.Services
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return user;
+
+            return (user, null);
         }
 
-        public async Task<string?> LoginAsync(LoginDto dto)
+        public async Task<(User?, string?, string?)> LoginAsync(LoginDto dto)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
-            
-            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                return null;
 
-            return CreateToken(user);
+            if (user == null)
+                return new(null, null, ErrorMessages.UsernameNotFound);
+
+            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+                return new(null, null, ErrorMessages.PasswordWrong);
+
+            return new(user, CreateToken(user), null);
         }
 
         private string CreateToken(User user)

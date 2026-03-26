@@ -2,8 +2,10 @@ namespace PeminjamanRuanganAPI.Constants
 {
     public static class ErrorMessages
     {
-        public const string UsernameOrEmailTaken = "Username atau email sudah digunakan.";
-        public const string UsernameOrEmailWrong = "Username atau password salah.";
+        public const string UsernameTaken = "Username sudah digunakan.";
+        public const string EmailTaken = "Email sudah digunakan.";
+        public const string UsernameNotFound = "Username tidak ditemukan.";
+        public const string PasswordWrong = "Password salah.";
         public const string UnauthorizedComplete = "Anda tidak memiliki akses untuk menyelesaikan pesanan ini.";
         public const string UnauthorizedCancel = "Anda tidak memiliki akses untuk membatalkan pesanan ini.";
         public const string UnauthorizedViewAccess = "Anda tidak memiliki akses untuk melihat data ini.";
@@ -13,7 +15,7 @@ namespace PeminjamanRuanganAPI.Constants
         public const string RoomNotFound = "Ruangan tidak ditemukan.";
         public const string StartTimeInPast = "Waktu mulai tidak boleh berada di masa lalu.";
         public const string InvalidTimeRange = "Waktu mulai harus lebih awal dari waktu selesai.";
-        public const string BookingConflict = "Ruangan telah dipesan pada periode waktu tersebut. Silakan pilih waktu atau ruangan lain.";
+        public const string BookingConflict = "Ruangan telah dipesan pada periode waktu tersebut. Silahkan pilih waktu selesai atau ruangan lain.";
         public const string CannotEditNonPending = "Booking yang tidak berstatus pending tidak dapat diedit.";
         public const string CannotDeleteOngoing = "Booking yang sedang berlangsung tidak dapat dihapus.";
         public const string CannotApproveCancelled = "Booking yang sudah dibatalkan tidak dapat disetujui.";
@@ -28,4 +30,4 @@ namespace PeminjamanRuanganAPI.Constants
         public const string CannotCancelCompleted = "Booking yang sudah selesai tidak dapat dibatalkan.";
         public const string CannotCancelOngoing = "Booking yang sedang berlangsung tidak dapat dibatalkan.";
     }
-    }
+}
