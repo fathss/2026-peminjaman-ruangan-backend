@@ -5,16 +5,20 @@ namespace PeminjamanRuanganAPI.DTO
     public class UpdateRoomDto
     {
         [Required]
-        [MaxLength(100)]
+        [MinLength(6, ErrorMessage = "Nama ruangan minimal harus 6 karakter.")]
+        [MaxLength(100, ErrorMessage = "Nama ruangan maksimal 100 karakter.")]
         public string Name { get; set; } = null!;
 
         [Required]
-        [MaxLength(100)]
+        [MinLength(10, ErrorMessage = "Lokasi minimal harus 10 karakter.")]
+        [MaxLength(100, ErrorMessage = "Lokasi maksimal 100 karakter.")]
         public string Location { get; set; } = null!;
 
-        [Range(1, 1000)]
+        [Required]
+        [Range(20, 1000, ErrorMessage = "Kapasitas harus diantara 20 dan 1000")]
         public int Capacity { get; set; }
 
+        [Required]
         [MaxLength(500)]
         public string? Description { get; set; }
 
