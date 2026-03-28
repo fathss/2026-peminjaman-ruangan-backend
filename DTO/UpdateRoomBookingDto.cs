@@ -11,7 +11,8 @@ namespace PeminjamanRuanganAPI.DTO
         public DateTime EndTime { get; set; }
 
         [Required]
-        [MaxLength(500)]
+        [MinLength(10, ErrorMessage = "Tujuan peminjaman minimal harus 10 karakter.")]
+        [MaxLength(255, ErrorMessage = "Tujuan peminjaman maksimal 255 karakter.")]
         public string Purpose { get; set; } = null!;
     }
 }

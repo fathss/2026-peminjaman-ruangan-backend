@@ -24,10 +24,11 @@ namespace PeminjamanRuanganAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
-            var user = await _authService.RegisterAsync(dto);
+            var (user, error) = await _authService.RegisterAsync(dto);
+
             if (user == null)
             {
-                return BadRequest(new { message = ErrorMessages.UsernameOrEmailTaken });
+                return BadRequest(new { message = error });
             }
 
             return Ok(new { message = "Registrasi berhasil." });
@@ -37,25 +38,18 @@ namespace PeminjamanRuanganAPI.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDto dto)
         {
-            var token = await _authService.LoginAsync(dto);
-            
+            var (user, token, error) = await _authService.LoginAsync(dto);
+
             if (token == null)
             {
-                return Unauthorized(new { message = ErrorMessages.UsernameOrEmailWrong });
-            }
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
-
-            if (user == null) 
-            {
-                return Unauthorized(new { message = "User data not found." });
+                return Unauthorized(new { message = error });
             }
 
             return Ok(new AuthResponseDto
             {
                 Username = dto.Username,
                 Token = token,
-                Role = user.Role
+                Role = user!.Role
             });
         }
     }

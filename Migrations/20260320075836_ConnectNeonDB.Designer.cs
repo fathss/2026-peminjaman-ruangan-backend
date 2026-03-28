@@ -12,8 +12,8 @@ using PeminjamanRuanganAPI.Data;
 namespace PeminjamanRuangan.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260215110014_InitialPostgres")]
-    partial class InitialPostgres
+    [Migration("20260320075836_ConnectNeonDB")]
+    partial class ConnectNeonDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

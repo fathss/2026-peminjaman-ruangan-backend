@@ -32,13 +32,21 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Get: api/roombookings/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<RoomBookingDetailResponseDto>> GetById(int id)
         {
             var booking = await _service.GetByIdAsync(id);
             if (booking == null) return NotFound();
 
-            return Ok(booking);
+            var histories = await _historyService.GetByBookingIdAsync(id);
+
+            var result = new RoomBookingDetailResponseDto
+            {
+                Booking = booking,
+                Histories = histories ?? new List<StatusHistoryDto>()
+            };
+
+            return Ok(result);
         }
 
         // Post: api/roombookings
@@ -59,7 +67,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Put: api/roombookings/{id}
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, UpdateRoomBookingDto dto)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -79,7 +87,7 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Delete: api/roombookings/{id}
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -93,11 +101,11 @@ namespace PeminjamanRuanganAPI.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-        }   
+        }
 
         // Put: api/roombookings/{id}/approve
         [Authorize(Roles = "Admin")]
-        [HttpPut("{id}/approve")]
+        [HttpPut("{id:int}/approve")]
         public async Task<IActionResult> Approve(int id)
         {
             try
@@ -118,7 +126,7 @@ namespace PeminjamanRuanganAPI.Controllers
 
         // Put: api/roombookings/{id}/reject
         [Authorize(Roles = "Admin")]
-        [HttpPut("{id}/reject")]
+        [HttpPut("{id:int}/reject")]
         public async Task<IActionResult> Reject(int id)
         {
             try
@@ -138,13 +146,13 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Put: api/roombookings/{id}/complete
-        [HttpPut("{id}/complete")]
+        [HttpPut("{id:int}/complete")]
         public async Task<IActionResult> Complete(int id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var role = User.FindFirstValue(ClaimTypes.Role)!;
 
-            try 
+            try
             {
                 var success = await _service.CompleteAsync(id, userId, role);
                 if (!success) return NotFound();
@@ -157,13 +165,13 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Put: api/roombookings/{id}/cancel
-        [HttpPut("{id}/cancel")]
+        [HttpPut("{id:int}/cancel")]
         public async Task<IActionResult> Cancel(int id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var role = User.FindFirstValue(ClaimTypes.Role)!;
 
-            try 
+            try
             {
                 var success = await _service.CancelAsync(id, userId, role);
                 if (!success) return NotFound();
@@ -176,20 +184,11 @@ namespace PeminjamanRuanganAPI.Controllers
         }
 
         // Get: api/roombookings/{id}/histories
-        [HttpGet("{id}/histories")]
-        public async Task<ActionResult<IEnumerable<StatusHistoryDto>>> GetHistoryById(int id)
+        // [HttpGet("{id:int}/histories")]
+        private async Task<ActionResult<IEnumerable<StatusHistoryDto>>> GetHistoryById(int id)
         {
             try
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var role = User.FindFirstValue(ClaimTypes.Role)!;
-
-                var bookingExists = await _service.GetByIdAsync(id);
-                if (bookingExists == null)            
-                {
-                    return NotFound();
-                }
-
                 var histories = await _historyService.GetByBookingIdAsync(id);
 
                 return Ok(histories ?? new List<StatusHistoryDto>());
