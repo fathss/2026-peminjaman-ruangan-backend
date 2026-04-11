@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.2] - 2026-04-11
+### Fixed
+- Menghapus middleware HTTPS redirection yang tidak diperlukan agar backend lebih cocok berjalan di balik reverse proxy/deployment environment.
+
+## [1.2.1] - 2026-04-06
+### Fixed
+- Memperbarui konfigurasi AutoMapper dan referensi package agar startup aplikasi dan mapping tetap konsisten.
+
 ## [1.2.0] - 2026-03-23
 ### Added
 - Menambahkan enhancement endpoint detail peminjaman agar `GetById` mengembalikan detail booking beserta riwayat status (`BookingStatusHistory`).
