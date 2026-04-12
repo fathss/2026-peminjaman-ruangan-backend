@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.3] - 2026-04-13
+### Added
+- Menambahkan health checks endpoint.
+
 ## [1.2.2] - 2026-04-11
 ### Fixed
 - Menghapus middleware HTTPS redirection yang tidak diperlukan agar backend lebih cocok berjalan di balik reverse proxy/deployment environment.
