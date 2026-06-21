@@ -1,3 +1,4 @@
+using System.Globalization;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using PeminjamanRuanganAPI.Constants;
@@ -57,8 +58,8 @@ namespace PeminjamanRuanganAPI.Services
 
         public async Task<RoomBookingResponseDto> CreateAsync(CreateRoomBookingDto dto, int userId)
         {
-            dto.StartTime = dto.StartTime;
-            dto.EndTime = dto.EndTime;
+            dto.StartTime = EnsureUtc(dto.StartTime);
+            dto.EndTime = EnsureUtc(dto.EndTime);
 
             await ValidateBookingAsync(dto.RoomId, dto.StartTime, dto.EndTime);
 
@@ -81,8 +82,8 @@ namespace PeminjamanRuanganAPI.Services
 
         public async Task<bool> UpdateAsync(int bookingId, UpdateRoomBookingDto dto, int userId, string userRole)
         {
-            dto.StartTime = dto.StartTime;
-            dto.EndTime = dto.EndTime;
+            dto.StartTime = EnsureUtc(dto.StartTime);
+            dto.EndTime = EnsureUtc(dto.EndTime);
 
             var roomBooking = await _context.RoomBookings.FindAsync(bookingId);
             if (roomBooking == null) return false;
@@ -263,6 +264,49 @@ namespace PeminjamanRuanganAPI.Services
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<SlotAvailabilityResponse> GetAvailabilityAsync(int roomId, string date, int timezoneOffset = 0, int? excludeBookingId = null)
+        {
+            var localMidnight = DateTime.ParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal);
+            var dayStart = EnsureUtc(localMidnight.AddMinutes(-timezoneOffset));
+            var dayEnd = EnsureUtc(dayStart.AddDays(1));
+
+            var query = _context.RoomBookings
+                .Where(b => b.RoomId == roomId &&
+                            b.StartTime < dayEnd &&
+                            b.EndTime > dayStart &&
+                            b.Status != BookingStatuses.Cancelled &&
+                            b.Status != BookingStatuses.Rejected &&
+                            b.Status != BookingStatuses.Completed);
+
+            if (excludeBookingId.HasValue)
+            {
+                query = query.Where(b => b.Id != excludeBookingId.Value);
+            }
+
+            var bookings = await query.ToListAsync();
+
+            var slots = new List<TimeSlotDto>();
+            for (var hour = 8; hour <= 20; hour++)
+            {
+                var slotStart = EnsureUtc(dayStart.AddHours(hour));
+                var slotEnd = EnsureUtc(slotStart.AddHours(1));
+                var available = !bookings.Any(b => b.StartTime < slotEnd && b.EndTime > slotStart);
+
+                slots.Add(new TimeSlotDto
+                {
+                    Time = $"{hour:D2}:00",
+                    Available = available
+                });
+            }
+
+            return new SlotAvailabilityResponse
+            {
+                Date = date,
+                Slots = slots
+            };
+        }
+
         private async Task ValidateBookingAsync(int roomId, DateTime start, DateTime end, int? excludeId = null)
         {
             var room = await _context.Rooms.FindAsync(roomId);
@@ -291,6 +335,16 @@ namespace PeminjamanRuanganAPI.Services
                             end > b.StartTime);
 
             if (isOverlapping) throw new Exception(ErrorMessages.BookingConflict);
+        }
+
+        private static DateTime EnsureUtc(DateTime value)
+        {
+            return value.Kind switch
+            {
+                DateTimeKind.Utc => value,
+                DateTimeKind.Local => value.ToUniversalTime(),
+                _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+            };
         }
     }
 }

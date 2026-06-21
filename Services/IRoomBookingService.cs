@@ -22,5 +22,7 @@ namespace PeminjamanRuanganAPI.Services
         Task<bool> CompleteAsync(int id, int changedByUserId, string userRole);
 
         Task<bool> CancelAsync(int id, int changedByUserId, string userRole);
+
+        Task<SlotAvailabilityResponse> GetAvailabilityAsync(int roomId, string date, int timezoneOffset = 0, int? excludeBookingId = null);
     }
 }

@@ -86,6 +86,21 @@ namespace PeminjamanRuanganAPI.Controllers
             }
         }
 
+        // Get: api/roombookings/availability?roomId={roomId}&date={date}
+        [HttpGet("availability")]
+        public async Task<ActionResult<SlotAvailabilityResponse>> GetAvailability([FromQuery] int roomId, [FromQuery] string date, [FromQuery] int timezoneOffset = 0, [FromQuery] int? excludeBookingId = null)
+        {
+            try
+            {
+                var result = await _service.GetAvailabilityAsync(roomId, date, timezoneOffset, excludeBookingId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         // Delete: api/roombookings/{id}
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
