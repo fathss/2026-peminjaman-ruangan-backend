@@ -17,7 +17,7 @@ namespace PeminjamanRuanganAPI.Services
 
         Task<bool> ApproveAsync(int id, int changedByUserId);
 
-        Task<bool> RejectAsync(int id, int changedByUserId);
+        Task<bool> RejectAsync(int id, string reason, int changedByUserId);
 
         Task<bool> CompleteAsync(int id, int changedByUserId, string userRole);
 

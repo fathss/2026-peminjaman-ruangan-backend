@@ -11,5 +11,7 @@ namespace PeminjamanRuanganAPI.DTO
         public DateTime ChangedAt { get; set; }
 
         public string? ChangedBy { get; set; }
+
+        public string? Reason { get; set; }
     }
 }

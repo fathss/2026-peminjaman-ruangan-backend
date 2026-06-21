@@ -31,5 +31,6 @@ namespace PeminjamanRuanganAPI.Constants
         public const string CannotCancelRejected = "Booking yang sudah ditolak tidak dapat dibatalkan.";
         public const string CannotCancelCompleted = "Booking yang sudah selesai tidak dapat dibatalkan.";
         public const string CannotCancelOngoing = "Booking yang sedang berlangsung tidak dapat dibatalkan.";
+        public const string RejectionReasonRequired = "Alasan penolakan wajib diisi.";
     }
 }

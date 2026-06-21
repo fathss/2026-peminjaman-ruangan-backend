@@ -135,8 +135,11 @@ namespace PeminjamanRuanganAPI.Services
             return true;
         }
 
-        public async Task<bool> RejectAsync(int id, int changedByUserId)
+        public async Task<bool> RejectAsync(int id, string reason, int changedByUserId)
         {
+            if (string.IsNullOrWhiteSpace(reason))
+                throw new Exception(ErrorMessages.RejectionReasonRequired);
+
             var roomBooking = await _context.RoomBookings.FindAsync(id);
             if (roomBooking == null) return false;
 
@@ -152,7 +155,7 @@ namespace PeminjamanRuanganAPI.Services
                     throw new Exception(ErrorMessages.CannotRejectOngoing);
             }
 
-            await ChangeStatusAsync(roomBooking, BookingStatuses.Rejected, changedByUserId);
+            await ChangeStatusAsync(roomBooking, BookingStatuses.Rejected, changedByUserId, reason);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -199,7 +202,7 @@ namespace PeminjamanRuanganAPI.Services
             return true;
         }
 
-        private async Task ChangeStatusAsync(RoomBooking roomBooking, string newStatus, int? changedByUserId)
+        private async Task ChangeStatusAsync(RoomBooking roomBooking, string newStatus, int? changedByUserId, string? reason = null)
         {
             if (roomBooking.Status == newStatus) return;
 
@@ -213,7 +216,8 @@ namespace PeminjamanRuanganAPI.Services
                 OldStatus = oldStatus.ToString(),
                 NewStatus = newStatus.ToString(),
                 ChangedByUserId = changedByUserId,
-                ChangedAt = DateTime.UtcNow
+                ChangedAt = DateTime.UtcNow,
+                Reason = reason
             });
         }
 

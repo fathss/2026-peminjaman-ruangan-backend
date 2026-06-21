@@ -127,13 +127,13 @@ namespace PeminjamanRuanganAPI.Controllers
         // Put: api/roombookings/{id}/reject
         [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}/reject")]
-        public async Task<IActionResult> Reject(int id)
+        public async Task<IActionResult> Reject(int id, RejectBookingRequest request)
         {
             try
             {
                 var adminId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-                var success = await _service.RejectAsync(id, adminId);
+                var success = await _service.RejectAsync(id, request.Reason, adminId);
 
                 if (!success) return NotFound();
 

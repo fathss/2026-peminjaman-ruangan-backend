@@ -36,7 +36,8 @@ namespace PeminjamanRuanganAPI.Mappings
                         ? (src.ChangedByUser.Role == "Admin" ? "Admin" : src.ChangedByUser.Username)
                         : "System"
                 ))
-                .ForMember(dest => dest.ChangedAt, opt => opt.MapFrom(src => src.ChangedAt.ToLocalTime()));
+                .ForMember(dest => dest.ChangedAt, opt => opt.MapFrom(src => src.ChangedAt.ToLocalTime()))
+                .ForMember(dest => dest.Reason, opt => opt.MapFrom(src => src.Reason));
         }
     }
 }

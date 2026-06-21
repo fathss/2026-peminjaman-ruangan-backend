@@ -18,5 +18,7 @@ namespace PeminjamanRuanganAPI.Models
 
         public int? ChangedByUserId { get; set; }
         public User? ChangedByUser { get; set; }
+
+        public string? Reason { get; set; }
     }
 }
