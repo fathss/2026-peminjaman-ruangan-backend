@@ -21,6 +21,8 @@ namespace PeminjamanRuanganAPI.Services
 
         public async Task<IEnumerable<RoomBookingResponseDto>> GetAllAsync(int? userId = null, string? role = null)
         {
+            await AutoCancelExpiredPendingBookingsAsync();
+
             var query = _context.RoomBookings.AsQueryable();
 
             if (role != "Admin" && userId.HasValue)
@@ -38,6 +40,8 @@ namespace PeminjamanRuanganAPI.Services
 
         public async Task<RoomBookingResponseDto?> GetByIdAsync(int bookingId)
         {
+            await AutoCancelExpiredPendingBookingsAsync();
+
             var roomBooking = await _context.RoomBookings
                 .Include(r => r.Room)
                 .Include(r => r.User)
@@ -46,6 +50,7 @@ namespace PeminjamanRuanganAPI.Services
             if (roomBooking == null) return null;
 
             await PerformStatusUpdate(roomBooking);
+            await _context.SaveChangesAsync();
 
             return _mapper.Map<RoomBookingResponseDto>(roomBooking);
         }
@@ -126,6 +131,7 @@ namespace PeminjamanRuanganAPI.Services
             }
 
             await ChangeStatusAsync(roomBooking, BookingStatuses.Approved, changedByUserId);
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -147,6 +153,7 @@ namespace PeminjamanRuanganAPI.Services
             }
 
             await ChangeStatusAsync(roomBooking, BookingStatuses.Rejected, changedByUserId);
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -161,6 +168,7 @@ namespace PeminjamanRuanganAPI.Services
             }
 
             await ChangeStatusAsync(roomBooking, BookingStatuses.Completed, changedByUserId);
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -187,6 +195,7 @@ namespace PeminjamanRuanganAPI.Services
             }
 
             await ChangeStatusAsync(roomBooking, BookingStatuses.Cancelled, changedByUserId);
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -206,8 +215,6 @@ namespace PeminjamanRuanganAPI.Services
                 ChangedByUserId = changedByUserId,
                 ChangedAt = DateTime.UtcNow
             });
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task PerformStatusUpdate(RoomBooking roomBooking)
@@ -226,6 +233,32 @@ namespace PeminjamanRuanganAPI.Services
                 await ChangeStatusAsync(roomBooking, BookingStatuses.OnGoing, null);
             }
         }
+
+        private async Task AutoCancelExpiredPendingBookingsAsync()
+        {
+            var now = DateTime.UtcNow;
+            var expiredPendingBookings = await _context.RoomBookings
+                .Where(b => b.Status == BookingStatuses.Pending && b.StartTime < now)
+                .ToListAsync();
+
+            if (expiredPendingBookings.Count == 0) return;
+
+            foreach (var booking in expiredPendingBookings)
+            {
+                booking.Status = BookingStatuses.Cancelled;
+
+                _context.BookingStatusHistories.Add(new BookingStatusHistory
+                {
+                    RoomBookingId = booking.Id,
+                    OldStatus = BookingStatuses.Pending,
+                    NewStatus = BookingStatuses.Cancelled,
+                    ChangedByUserId = null,
+                    ChangedAt = now
+                });
+            }
+
+            await _context.SaveChangesAsync();
+        }
         private async Task ValidateBookingAsync(int roomId, DateTime start, DateTime end, int? excludeId = null)
         {
             var room = await _context.Rooms.FindAsync(roomId);
@@ -237,6 +270,12 @@ namespace PeminjamanRuanganAPI.Services
             if (start < DateTime.UtcNow) throw new Exception(ErrorMessages.StartTimeInPast);
 
             if (start >= end) throw new Exception(ErrorMessages.InvalidTimeRange);
+
+            var maximumStartTime = DateTime.UtcNow.AddDays(30);
+            if (start > maximumStartTime || end > maximumStartTime) throw new Exception(ErrorMessages.BookingTooFarInFuture);
+            
+            var minimumStartTime = DateTime.UtcNow.AddHours(12);
+            if (start < minimumStartTime) throw new Exception(ErrorMessages.BookingTooLastMinute);
 
             var isOverlapping = await _context.RoomBookings
                 .AnyAsync(b => b.RoomId == roomId &&

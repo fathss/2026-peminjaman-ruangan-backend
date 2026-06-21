@@ -14,6 +14,8 @@ namespace PeminjamanRuanganAPI.Constants
         public const string RoomInactive = "Ruangan saat ini sedang tidak dapat digunakan.";
         public const string RoomNotFound = "Ruangan tidak ditemukan.";
         public const string StartTimeInPast = "Waktu mulai tidak boleh berada di masa lalu.";
+        public const string BookingTooLastMinute = "Pemesanan minimal dilakukan 12 jam sebelum waktu mulai.";
+        public const string BookingTooFarInFuture = "Pemesanan maksimal dilakukan 30 hari sebelum waktu mulai.";
         public const string InvalidTimeRange = "Waktu mulai harus lebih awal dari waktu selesai.";
         public const string BookingConflict = "Ruangan telah dipesan pada periode waktu tersebut. Silahkan pilih waktu selesai atau ruangan lain.";
         public const string CannotEditNonPending = "Booking yang tidak berstatus pending tidak dapat diedit.";
